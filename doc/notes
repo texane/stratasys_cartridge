@@ -5,11 +5,12 @@ general
 
 on the stratasys original PCB:
 . onewire eeprom ds2433 1245b1 312ae
-. 4.7K pulldown resistor between GND(4) and DATA(3)
+. 4.7K Ohms pulldown resistor between GND(4) and DATA(3)
 
 
 on reader prototype
-. 690 pull up resistor, tied to 3.3V
+. 690 Ohms pull up resistor, tied to 3.3V
+. warning: voltage may be too low for writing, cf. datasheet
 
 
 original empty cartridge eeprom dump:
