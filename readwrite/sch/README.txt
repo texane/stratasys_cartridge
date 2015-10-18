@@ -1,0 +1,3 @@
+Stratasys Cartridge EEPROM Replacement PCB README.txt
+1-14-2015
+This is the readme for the replacement PCB files for the Stratasys BST series 3d printers. These files are provided for personal use only and may not be used for any commercial purpose. That is, you may NOT sell these boards for mass production purposes (i.e. if you are trying to sell generic cartridges as a third party). Any use of these files and any boards that are made from them is AT YORU OWN RISK.
