@@ -9,23 +9,41 @@
 #  <device_path> wmem <offset> <data_or_file>
 
 
+# TODO: read write by line
+# TODO: verify after write
+# TODO: ack after each command
+
+
 import serial
 import sys
 import os
+
+
+def makeline(s):
+    return s + '\n'
+
+
+def stripline(l):
+    return l.replace('\r', '').replace('\n', '')
+
+
+def read_ack(ser):
+    # TODO
+    return 0
 
 
 def do_read_mem(ser, av):
     if len(av) != 2: return -1
     off = av[0]
     size = av[1]
-    s = 'rmem ' + off + ' ' + size + '\n'
+    s = makeline('rmem ' + off + ' ' + size)
     ser.write(s)
     return 0
 
 
 def do_read_rom(ser, av):
     if len(av) != 0: return -1
-    s = 'rrom\n'
+    s = makeline('rrom')
     ser.write(s)
     return 0
 
@@ -37,7 +55,7 @@ def get_data_or_file(s):
     f = open(s, 'r')
     s = f.read()
     f.close()
-    return s.replace('\r', '').replace('\n', '')
+    return stripline(s)
 
 
 def is_hex(x):
@@ -63,7 +81,7 @@ def do_write_mem(ser, av):
     for i in range(0, n / 2):
         j = i * 2
         x = data[j : j + 2]
-        s = 'wmem ' + str(off + i) + ' ' + x + '\n'
+        s = makeline('wmem ' + str(off + i) + ' ' + x)
         ser.write(s)
     return 0
 
