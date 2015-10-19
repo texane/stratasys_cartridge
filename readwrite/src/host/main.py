@@ -4,13 +4,26 @@
 #
 # very crude client to communicate with device
 # use python, pyserial for cross oses portability
-# use synchronous ascii line based protocol to work with common term tools
-# use per command line acknowledge for flow control
+# use sync ascii based protocol to work with common term tools
+# use per line acknowledge for flow control
 #
-# usage: main.py
-#  <device_path> rmem <offset> <size>
-#  <device_path> rrom
-#  <device_path> wmem <offset> <data_or_file>
+# command line usage
+# note: address and size interpreted as hex numbers 
+#
+# set the current memory address:
+# main.py <device_path> addr <addr>
+#
+# print the current memory address:
+# main.py <device_path> addr
+#
+# read data from memory:
+# main.py <device_path> rmem <size>
+#
+# write data to memory:
+# main.py <device_path> wmem <data_or_file>
+#
+# read eeprom identifier:
+# main.py <device_path> rrom
 #
 
 
@@ -97,7 +110,7 @@ def recv_multi_line(ser, nline):
 
 
 def send_line_recv_ack(ser, l):
-    ser.write(ser, append_eol(l))
+    ser.write(append_eol(l))
     return recv_line(ser)
 
 
@@ -112,32 +125,52 @@ def send_cmd_and_recv_multi_line(ser, cmd_lines, nline):
 
 
 def send_cmd(ser, lines):
-    send_cmd_and_recv_multi_line(ser, lines, 0)
+    res = send_cmd_and_recv_multi_line(ser, lines, 0)
+    if res == None: return -1
     return 0
 
 
-def do_read_mem(ser, av):
-    if len(av) != 2: return -1
-    off = av[0]
-    size = av[1]
-    cmd_line = [ 'rmem ' + off + ' ' + size ]
+def format_uint16(x):
+    return '%04x' % int(x, 16)
+
+
+def do_addr(ser, av):
+    if len(av) == 1:
+        addr = format_uint16(av[0])
+        cmd_line = [ 'addr ' + addr ]
+        nline = 0
+    elif len(av) == 0:
+        cmd_line = [ 'addr' ]
+        nline = 1
+    else: return -1
+    lines = send_cmd_and_recv_multi_line(ser, cmd_line, nline)
+    if lines == None: return -1
+    for l in lines: print(l)
+    return 0
+
+
+def do_rmem(ser, av):
+    if len(av) != 1: return -1
+    size = format_uint16(av[0])
+    cmd_line = [ 'rmem ' + size ]
     n = size_to_line_count(size)
     repl_lines = send_cmd_and_recv_multi_line(ser, cmd_line, n)
+    if repl_lines == None: return -1
     for l in repl_lines: print(l)
     return 0
 
 
-def do_read_rom(ser, av):
+def do_rrom(ser, av):
     if len(av) != 0: return -1
     cmd_line = [ 'rrom' ]
     repl_lines = send_cmd_and_recv_multi_line(ser, cmd_line, 1)
+    if repl_lines == None: return -1
     for l in repl_lines: print(l)
     return 0
 
 
-def do_write_mem(ser, av):
-    if len(av) != 2: return -1
-    off = int(av[0])
+def do_wmem(ser, av):
+    if len(av) != 1: return -1
     lines = data_or_file_to_multi_line(av[1])
     if lines == None: return -1
     lines.prepend('wmem ' + str(off))
@@ -147,13 +180,14 @@ def do_write_mem(ser, av):
 
 def main(av):
     dev = av[1]
-    ser = serial.Serial(dev, 115200, timeout = 1)
-    if av[2] == 'rmem': err = do_read_mem(ser, av[3:])
-    elif av[2] == 'rrom': err = do_read_rom(ser, av[3:])
-    elif av[2] == 'wmem': err = do_write_mem(ser, av[3:])
+    ser = serial.Serial(dev, 9600, timeout = 1)
+    if av[2] == 'addr': err = do_addr(ser, av[3:])
+    elif av[2] == 'rmem': err = do_rmem(ser, av[3:])
+    elif av[2] == 'wmem': err = do_wmem(ser, av[3:])
+    elif av[2] == 'rrom': err = do_rrom(ser, av[3:])
     else: err = -1
     ser.close()
-    if err: print('an error occured')
+    if err: print('error')
     return err
 
 
