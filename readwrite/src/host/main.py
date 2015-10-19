@@ -32,6 +32,18 @@ def read_ack(ser):
     return 0
 
 
+def multiline(s):
+    # split a string into multiple lines to be sent
+    line_max_len = 16
+    s_len = len(s)
+    l = []
+    for i in range(0, s_len, line_max_len):
+        line_len = line_max_len
+        if s_len - i < line_max_len: line_len = s_len - i
+        l.append(s[i : i + line_len])
+    return l
+
+
 def do_read_mem(ser, av):
     if len(av) != 2: return -1
     off = av[0]
