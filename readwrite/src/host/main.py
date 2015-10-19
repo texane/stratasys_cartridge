@@ -24,7 +24,7 @@ def append_eol(s):
 
 
 def strip_eol(l):
-    return l.rstrip('\n').l('\r')
+    return l.rstrip('\n').rstrip('\r')
 
 
 def is_hex(x):
