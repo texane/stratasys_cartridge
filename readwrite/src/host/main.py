@@ -30,6 +30,7 @@ def strip_eol(l):
 def is_hex(x):
     if x >= '0' and x <= '9': return True
     elif x >= 'a' and x <= 'f': return True
+    elif x >= 'A' and x <= 'F': return True
     return False
 
 
