@@ -20,7 +20,7 @@ static inline void set_baud_rate(long baud)
 static void uart_setup(void)
 {
 #if (CLK_PRESCAL == 1UL)
-  set_baud_rate(115200);
+  set_baud_rate(9600);
 #else
   set_baud_rate(300);
 #endif
@@ -135,6 +135,47 @@ static uint8_t* uint32_to_string(uint32_t x)
   hex_buf[0] = hex(nibble(x, 7));
 
   return hex_buf;
+}
+
+static uint8_t char_to_uint8(char c, uint8_t* x)
+{
+  if ((c >= '0') && (c <= '9'))
+  {
+    *x = c - '0';
+    return 0;
+  }
+  else if ((c >= 'a') && (c <= 'f'))
+  {
+    *x = c - 'a';
+    return 0;
+  }
+  else if ((c >= 'A') && (c <= 'F'))
+  {
+    *x = c - 'A';
+    return 0;
+  }
+  return (uint8_t)-1;
+}
+
+static uint8_t string_to_uint16(const char* s, uint16_t* x)
+{
+  uint8_t tmp;
+
+  *x = 0;
+
+  if (char_to_uint8(s[0], &tmp)) return (uint8_t)-1;
+  *x |= (uint16_t)tmp << 12;
+
+  if (char_to_uint8(s[1], &tmp)) return (uint8_t)-1;
+  *x |= (uint16_t)tmp << 8;
+
+  if (char_to_uint8(s[2], &tmp)) return (uint8_t)-1;
+  *x |= (uint16_t)tmp << 4;
+
+  if (char_to_uint8(s[3], &tmp)) return (uint8_t)-1;
+  *x |= (uint16_t)tmp << 0;
+
+  return 0;
 }
 
 
