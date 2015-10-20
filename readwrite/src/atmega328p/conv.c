@@ -59,7 +59,7 @@ static uint8_t* uint32_to_string(uint32_t x)
 
 static uint8_t char_to_uint8(char c, uint8_t* x)
 {
-  uint8_t xx;
+  char xx;
   
   if ((c >= '0') && (c <= '9')) xx = '0';
   else if ((c >= 'a') && (c <= 'f')) xx = 'a';
