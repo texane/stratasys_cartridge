@@ -139,22 +139,31 @@ static uint8_t* uint32_to_string(uint32_t x)
 
 static uint8_t char_to_uint8(char c, uint8_t* x)
 {
-  if ((c >= '0') && (c <= '9'))
-  {
-    *x = c - '0';
-    return 0;
-  }
-  else if ((c >= 'a') && (c <= 'f'))
-  {
-    *x = c - 'a';
-    return 0;
-  }
-  else if ((c >= 'A') && (c <= 'F'))
-  {
-    *x = c - 'A';
-    return 0;
-  }
-  return (uint8_t)-1;
+  uint8_t xx;
+  
+  if ((c >= '0') && (c <= '9')) xx = '0';
+  else if ((c >= 'a') && (c <= 'f')) xx = 'a';
+  else if ((c >= 'A') && (c <= 'F')) xx = 'A';
+  else return (uint8_t)-1;
+  
+  *x = c - xx;
+
+  return 0;
+}
+
+static uint8_t string_to_uint8(const char* s, uint8_t* x)
+{
+  uint8_t tmp;
+
+  *x = 0;
+
+  if (char_to_uint8(s[0], &tmp)) return (uint8_t)-1;
+  *x |= tmp << 4;
+
+  if (char_to_uint8(s[1], &tmp)) return (uint8_t)-1;
+  *x |= tmp << 0;
+
+  return 0;
 }
 
 static uint8_t string_to_uint16(const char* s, uint16_t* x)
