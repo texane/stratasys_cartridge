@@ -75,13 +75,11 @@ static uint8_t string_to_uint8(const char* s, uint8_t* x)
 {
   uint8_t tmp;
 
-  *x = 0;
-
   if (char_to_uint8(s[0], &tmp)) return (uint8_t)-1;
-  *x |= tmp << 4;
+  *x = tmp << 4;
 
   if (char_to_uint8(s[1], &tmp)) return (uint8_t)-1;
-  *x |= tmp << 0;
+  *x |= tmp;
 
   return 0;
 }
@@ -90,19 +88,11 @@ static uint8_t string_to_uint16(const char* s, uint16_t* x)
 {
   uint8_t tmp;
 
-  *x = 0;
+  if (string_to_uint8(s + 0, &tmp)) return (uint8_t)-1;
+  *x = (uint16_t)tmp << 8;
 
-  if (char_to_uint8(s[0], &tmp)) return (uint8_t)-1;
-  *x |= (uint16_t)tmp << 12;
-
-  if (char_to_uint8(s[1], &tmp)) return (uint8_t)-1;
-  *x |= (uint16_t)tmp << 8;
-
-  if (char_to_uint8(s[2], &tmp)) return (uint8_t)-1;
-  *x |= (uint16_t)tmp << 4;
-
-  if (char_to_uint8(s[3], &tmp)) return (uint8_t)-1;
-  *x |= (uint16_t)tmp << 0;
+  if (string_to_uint8(s + 2, &tmp)) return (uint8_t)-1;
+  *x |= (uint16_t)tmp;
 
   return 0;
 }
