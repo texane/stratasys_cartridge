@@ -183,23 +183,44 @@ static uint8_t ds2433_write_mem
   uint8_t aa[DS2433_AA_SIZE];
   uint8_t i;
   uint8_t ii;
-  uint8_t n;
 
-  ii = (uint8_t)(size / (uint16_t)DS2433_SPAD_SIZE);
-  n = (uint8_t)(size % (uint16_t)DS2433_SPAD_SIZE);
-  if (n == 0) n = DS2433_SPAD_SIZE;
-  else ++ii;
+  /* align first access relative to DS2433_SPAD_SIZE */
 
-  for (i = 0; i != ii; ++i)
+  i = (uint8_t)addr % DS2433_SPAD_SIZE;
+  if (i)
   {
-    if (ds2433_write_spad_safe(buf, addr, n)) goto on_error;
+    i = DS2433_SPAD_SIZE - i;
+
+    if (ds2433_write_spad_safe(buf, addr, i)) goto on_error;
     if (ds2433_read_spad(aa)) goto on_error;
     if (ds2433_copy_spad(aa)) goto on_error;
 
-    buf += n;
-    addr += (uint16_t)n;
+    buf += i;
+    addr += (uint16_t)i;
+    size += (uint16_t)i;
+  }
 
-    n = DS2433_SPAD_SIZE;
+  /* write entire DS2433_SPAD_SIZE blocks */
+
+  ii = (uint8_t)(size / (uint16_t)DS2433_SPAD_SIZE);
+  for (i = 0; i != ii; ++i)
+  {
+    if (ds2433_write_spad_safe(buf, addr, DS2433_SPAD_SIZE)) goto on_error;
+    if (ds2433_read_spad(aa)) goto on_error;
+    if (ds2433_copy_spad(aa)) goto on_error;
+
+    buf += DS2433_SPAD_SIZE;
+    addr += DS2433_SPAD_SIZE;
+    size -= DS2433_SPAD_SIZE;
+  }
+
+  /* write remainder */
+
+  if (size)
+  {
+    if (ds2433_write_spad_safe(buf, addr, (uint8_t)size)) goto on_error;
+    if (ds2433_read_spad(aa)) goto on_error;
+    if (ds2433_copy_spad(aa)) goto on_error;
   }
 
   return DS2433_ERR_SUCCESS;

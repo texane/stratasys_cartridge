@@ -181,8 +181,7 @@ static void do_wmem(const char* line, uint8_t len)
 
     /* checks */
     if (n & 1) goto on_error;
-    if ((i + (uint16_t)n) > sizeof(mem_buf)) goto on_error;
-    if ((mem_addr + i + (uint16_t)n) > DS2433_MEM_SIZE) goto on_error;
+    if ((mem_addr + i + (uint16_t)(n / 2)) > DS2433_MEM_SIZE) goto on_error;
 
     /* convert the line */
     for (j = 0; j != n; j += 2, i += 1)
