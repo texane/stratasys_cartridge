@@ -46,6 +46,12 @@ static void write_buf(uint8_t* buf, uint16_t size)
   write_eol();
 }
 
+static void write_uint16(uint16_t x)
+{
+  uart_write(uint16_to_string(x), 4);
+  write_eol();
+}
+
 static void write_ok(void)
 {
   UART_WRITE_STRING("ok");
@@ -158,6 +164,19 @@ static void do_wmem(const char* line, uint8_t len)
   write_ko();
 }
 
+static void do_llen(const char* line, uint8_t len)
+{
+  if (len) goto on_error;
+
+  write_ok();
+  write_uint16(LINE_MAX_SIZE);
+  return ;
+
+ on_error:
+  write_ko();
+  return ;
+}
+
 
 /* main */
 
@@ -180,7 +199,8 @@ int main(int ac, char** av)
     DEFINE_HANDLER(addr),
     DEFINE_HANDLER(rmem),
     DEFINE_HANDLER(wmem),
-    DEFINE_HANDLER(rrom)
+    DEFINE_HANDLER(rrom),
+    DEFINE_HANDLER(llen)
   };
 
   static const uint8_t n = sizeof(h) / sizeof(h[0]);

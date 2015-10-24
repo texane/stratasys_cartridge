@@ -25,6 +25,9 @@
 # read eeprom identifier:
 # main.py <device_path> rrom
 #
+# retrieve max line length:
+# main.py <device_path> llen
+#
 
 
 import serial
@@ -177,15 +180,31 @@ def do_wmem(ser, av):
     return 0
 
 
+def do_llen(ser, av, do_print = True):
+    if len(av) != 0: return -1
+    cmd_line = [ 'llen' ]
+    repl_lines = send_cmd_and_recv_multi_line(ser, cmd_line, 1)
+    if repl_lines == None: return -1
+    if do_print == True:
+        for l in repl_lines: print(l)
+    max_line_len = int('0x' + repl_lines[0], 16)
+    return 0
+
+
 def main(av):
     dev = av[1]
     ser = serial.Serial(dev, 9600, timeout = 1)
+    do_llen(ser, [], do_print = False)
+
     if av[2] == 'addr': err = do_addr(ser, av[3:])
     elif av[2] == 'rmem': err = do_rmem(ser, av[3:])
     elif av[2] == 'wmem': err = do_wmem(ser, av[3:])
     elif av[2] == 'rrom': err = do_rrom(ser, av[3:])
+    elif av[2] == 'llen': err = do_llen(ser, av[3:])
     else: err = -1
+
     ser.close()
+
     if err: print('error')
     return err
 
