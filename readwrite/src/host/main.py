@@ -55,7 +55,7 @@ def check_data_line(s):
     return 0
 
 
-max_line_len = 32
+max_line_len = 16
 def single_to_multi_line(s):
     # split a string into multiple lines to be sent
     s_len = len(s)
@@ -67,10 +67,9 @@ def single_to_multi_line(s):
     return l
 
 
-def size_to_line_count(s):
-    s_len = len(s)
-    n = s_len / max_line_len
-    if s_len % max_line_len: n = n + 1
+def size_to_line_count(size):
+    n = size / max_line_len
+    if size % max_line_len: n = n + 1
     return n
 
 
@@ -153,7 +152,7 @@ def do_rmem(ser, av):
     if len(av) != 1: return -1
     size = format_uint16(av[0])
     cmd_line = [ 'rmem ' + size ]
-    n = size_to_line_count(size)
+    n = size_to_line_count(int('0x' + size, 16))
     repl_lines = send_cmd_and_recv_multi_line(ser, cmd_line, n)
     if repl_lines == None: return -1
     for l in repl_lines: print(l)
