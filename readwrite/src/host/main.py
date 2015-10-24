@@ -30,6 +30,14 @@
 #
 
 
+#
+# TODOs
+# first command fails
+# verify command
+# rmem without size reads all
+#
+
+
 import serial
 import sys
 import os
