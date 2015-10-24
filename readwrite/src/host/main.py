@@ -89,8 +89,10 @@ def read_data_file(s):
     f = open(s, 'r')
     x = f.read()
     f.close()
+    s = ''
     lines = x.splitlines()
-    return lines.join()
+    for l in lines: s += l
+    return s
 
 
 def data_or_file_to_multi_line(s):
