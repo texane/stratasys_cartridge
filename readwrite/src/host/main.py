@@ -32,7 +32,6 @@
 
 #
 # TODOs
-# first command fails
 # verify command
 #
 
@@ -208,8 +207,12 @@ def do_llen(ser, av, do_print = True):
 
 def main(av):
     dev = av[1]
-    ser = serial.Serial(dev, 9600, timeout = 1)
-    do_llen(ser, [], do_print = False)
+    ser = serial.Serial(dev, 9600, timeout = 2)
+
+    # fixme: when the serial port is first opened a timeout
+    # occurs for the first command. send it twice here.
+    if do_llen(ser, [], do_print = False) != 0:
+        do_llen(ser, [], do_print = False)
 
     if av[2] == 'addr': err = do_addr(ser, av[3:])
     elif av[2] == 'rmem': err = do_rmem(ser, av[3:])
