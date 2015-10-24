@@ -12,16 +12,19 @@
 #include "ds2433.c"
 
 
-/* global variable */
+/* global variables */
 
 static uint8_t rom_buf[DS2433_ROM_SIZE];
 static uint8_t mem_buf[DS2433_MEM_SIZE];
 
+/* LINE_MAX_SIZE must be < 256 because uint8_t used */
+#define LINE_MAX_SIZE 16
+
+/* add 2 for eol */
+static char line_buf[LINE_MAX_SIZE + 2];
 
 
 /* line related routines */
-
-#define LINE_MAX_SIZE 16
 
 static uint8_t is_eol(char c)
 {
@@ -119,10 +122,8 @@ static void do_rmem(const char* line, uint8_t len)
 {
   uint16_t size;
 
-  if (len != 5) goto on_error;
-
-  --len;
-  ++line;
+  skip_ws(&line, &len);
+  if (len != 4) goto on_error;
 
   if (string_to_uint16(line, &size)) goto on_error;
   if ((mem_addr + size) > DS2433_MEM_SIZE) goto on_error;
@@ -159,9 +160,49 @@ static void do_rrom(const char* line, uint8_t len)
 
 static void do_wmem(const char* line, uint8_t len)
 {
-  /* not implemented */
+  uint16_t i;
+  uint8_t j;
+  uint8_t n;
 
+  if (len) goto on_error;
+
+  /* acknowledge command line */
+  write_ok();
+
+  /* receive all lines and fill mem_buf */
+  i = 0;
+  while (1)
+  {
+    n = read_line(line_buf, sizeof(line_buf));
+
+    /* data lines terminated by empty line */
+    /* empty line acked at command completion */
+    if (n == 0) break ;
+
+    /* checks */
+    if (n & 1) goto on_error;
+    if ((i + (uint16_t)n) > sizeof(mem_buf)) goto on_error;
+    if ((mem_addr + i + (uint16_t)n) > DS2433_MEM_SIZE) goto on_error;
+
+    /* convert the line */
+    for (j = 0; j != n; j += 2)
+    {
+      if (string_to_uint8(line_buf + j, mem_buf + i)) goto on_error;
+      i += 1;
+    }
+
+    /* acknowledge the data line */
+    write_ok();
+  }
+
+  if (ds2433_write_mem(mem_buf, mem_addr, i)) goto on_error;
+  mem_addr += i;
+  write_ok();
+  return ;
+
+ on_error:
   write_ko();
+  return ;
 }
 
 static void do_llen(const char* line, uint8_t len)
@@ -205,7 +246,6 @@ int main(int ac, char** av)
 
   static const uint8_t n = sizeof(h) / sizeof(h[0]);
 
-  char line_buf[LINE_MAX_SIZE];
   uint8_t i;
   uint8_t len;
 
@@ -217,8 +257,6 @@ int main(int ac, char** av)
   {
     len = read_line(line_buf, sizeof(line_buf));
     if (len == 0) continue ;
-
-    if (len == LINE_MAX_SIZE) continue ;
 
     for (i = 0; i != n; ++i)
     {

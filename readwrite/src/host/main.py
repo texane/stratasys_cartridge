@@ -50,11 +50,11 @@ def is_hex(x):
     return False
 
 
-def check_data_line(s):
-    n = len(s)
+def check_data_line(l):
+    n = len(l)
     if (n % 2) != 0: return -1
-    for i in range(0, n):
-        if is_hex(s[i]) == False: return -1
+    for c in l:
+        if is_hex(c) == False: return -1
     return 0
 
 
@@ -133,12 +133,15 @@ def send_cmd(ser, lines):
 
 
 def format_uint16(x):
-    return '%04x' % int(x, 16)
+    try: s = '%04x' % int(x, 16)
+    except: s = None
+    return s
 
 
 def do_addr(ser, av):
     if len(av) == 1:
         addr = format_uint16(av[0])
+        if addr == None: return -1
         cmd_line = [ 'addr ' + addr ]
         nline = 0
     elif len(av) == 0:
@@ -154,6 +157,7 @@ def do_addr(ser, av):
 def do_rmem(ser, av):
     if len(av) != 1: return -1
     size = format_uint16(av[0])
+    if size == None: return -1
     cmd_line = [ 'rmem ' + size ]
     n = size_to_line_count(int('0x' + size, 16))
     repl_lines = send_cmd_and_recv_multi_line(ser, cmd_line, n)
@@ -173,9 +177,11 @@ def do_rrom(ser, av):
 
 def do_wmem(ser, av):
     if len(av) != 1: return -1
-    lines = data_or_file_to_multi_line(av[1])
+    lines = data_or_file_to_multi_line(av[0])
     if lines == None: return -1
-    lines.prepend('wmem ' + str(off))
+    lines.insert(0, 'wmem')
+    # append empty line to end data
+    lines.append('')
     send_cmd(ser, lines)
     return 0
 
