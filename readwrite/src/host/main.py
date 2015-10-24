@@ -126,7 +126,9 @@ def send_line_recv_ack(ser, l):
 
 def send_cmd_and_recv_multi_line(ser, cmd_lines, nline):
     for l in cmd_lines:
+        print('send ' + l)
         ack = send_line_recv_ack(ser, l)
+        print('got  ' + ack)
         if ack != 'ok': return None
     repl_lines = []
     for i in range(0, nline):

@@ -38,6 +38,16 @@
 #include "ow_master.c"
 
 
+/* sizes */
+
+#define DS2433_AA_SIZE 3
+#define DS2433_SPAD_SIZE 32
+#define DS2433_ROM_SIZE 8
+#define DS2433_MEM_SIZE 512
+
+
+/* error code */
+
 #define DS2433_ERR_SUCCESS ((uint8_t)0)
 #define DS2433_ERR_FAILURE ((uint8_t)-1)
 
@@ -61,8 +71,6 @@ static uint8_t ds2433_read_rom(uint8_t* buf)
 {
   /* ds2433.pdf, p.12 */
   /* rom is the device full 64 bits identifier */
-
-#define DS2433_ROM_SIZE 8
 
   if (ow_master_reset_slave()) return (uint8_t)-1;
   ow_master_write_uint8(0x33);
@@ -105,15 +113,16 @@ static uint8_t ds2433_read_mem
 
 static uint8_t ds2433_read_all_mem(uint8_t* buf)
 {
-#define DS2433_MEM_SIZE 512
   return ds2433_read_mem(buf, 0, DS2433_MEM_SIZE);
 }
 
 
-static uint8_t ds2433_write_scratchpad
-(const uint8_t* buf, uint16_t addr, uint16_t size)
+static uint8_t ds2433_write_spad_safe
+(const uint8_t* buf, uint16_t addr, uint8_t size)
 {
-  uint16_t i;
+  /* safe version, arguments validated */
+
+  uint8_t i;
 
   if (ds2433_cmd_norom(0x0f)) return DS2433_ERR_FAILURE;
 
@@ -127,10 +136,16 @@ static uint8_t ds2433_write_scratchpad
 }
 
 
-static uint8_t ds2433_read_scratchpad(uint8_t* aa)
+static uint8_t ds2433_write_spad
+(const uint8_t* buf, uint16_t addr, uint8_t size)
 {
-#define DS2433_AA_SIZE 3
+  if (size >= DS2433_SPAD_SIZE) return DS2433_ERR_FAILURE;
+  return ds2433_write_spad_safe(buf, addr, size);
+}
 
+
+static uint8_t ds2433_read_spad(uint8_t* aa)
+{
   uint8_t i;
 
   if (ds2433_cmd_norom(0xaa)) return DS2433_ERR_FAILURE;
@@ -145,7 +160,7 @@ static uint8_t ds2433_read_scratchpad(uint8_t* aa)
 }
 
 
-static uint8_t ds2433_copy_scratchpad(const uint8_t* aa)
+static uint8_t ds2433_copy_spad(const uint8_t* aa)
 {
   uint8_t i;
 
@@ -167,10 +182,26 @@ static uint8_t ds2433_write_mem
   /* write, read, copy scratchpad */
 
   uint8_t aa[DS2433_AA_SIZE];
+  uint8_t i;
+  uint8_t ii;
+  uint8_t n;
 
-  if (ds2433_write_scratchpad(buf, addr, size)) goto on_error;
-  if (ds2433_read_scratchpad(aa)) goto on_error;
-  if (ds2433_copy_scratchpad(aa)) goto on_error;
+  ii = (uint8_t)(size / (uint16_t)DS2433_SPAD_SIZE);
+  n = (uint8_t)(size % (uint16_t)DS2433_SPAD_SIZE);
+  if (n == 0) n = DS2433_SPAD_SIZE;
+  else ++ii;
+
+  for (i = 0; i != ii; ++i)
+  {
+    if (ds2433_write_spad_safe(buf, addr, n)) goto on_error;
+    if (ds2433_read_spad(aa)) goto on_error;
+    if (ds2433_copy_spad(aa)) goto on_error;
+
+    buf += n;
+    addr += (uint16_t)n;
+
+    n = DS2433_SPAD_SIZE;
+  }
 
   return DS2433_ERR_SUCCESS;
 
