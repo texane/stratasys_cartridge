@@ -62,11 +62,11 @@ static uint8_t char_to_uint8(char c, uint8_t* x)
   char xx;
   
   if ((c >= '0') && (c <= '9')) xx = '0';
-  else if ((c >= 'a') && (c <= 'f')) xx = 'a';
-  else if ((c >= 'A') && (c <= 'F')) xx = 'A';
+  else if ((c >= 'a') && (c <= 'f')) xx = 'a' - 10;
+  else if ((c >= 'A') && (c <= 'F')) xx = 'A' - 10;
   else return (uint8_t)-1;
   
-  *x = c - xx;
+  *x = (uint8_t)(c - xx);
 
   return 0;
 }
