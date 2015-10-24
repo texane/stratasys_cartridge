@@ -34,7 +34,6 @@
 # TODOs
 # first command fails
 # verify command
-# rmem without size reads all
 #
 
 
@@ -165,8 +164,10 @@ def do_addr(ser, av):
 
 
 def do_rmem(ser, av):
-    if len(av) != 1: return -1
-    size = format_uint16(av[0])
+    if len(av) == 0: size = '200'
+    elif len(av) != 1: return -1
+    else: size = av[0]
+    size = format_uint16(size)
     if size == None: return -1
     cmd_line = [ 'rmem ' + size ]
     n = size_to_line_count(int('0x' + size, 16))

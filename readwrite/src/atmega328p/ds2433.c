@@ -154,7 +154,6 @@ static uint8_t ds2433_read_spad(uint8_t* aa)
   for (i = 0; i != DS2433_AA_SIZE; ++i, ++aa) ow_master_read_uint8(aa);
 
   /* skip data bytes that follow */
-  /* verification done by host software */
 
   return 0;
 }
