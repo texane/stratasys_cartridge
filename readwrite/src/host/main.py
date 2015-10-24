@@ -30,12 +30,6 @@
 #
 
 
-#
-# TODOs
-# verify command
-#
-
-
 import serial
 import sys
 import os
