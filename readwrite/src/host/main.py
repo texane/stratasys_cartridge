@@ -28,6 +28,9 @@
 # retrieve max line length:
 # main.py <device_path> llen
 #
+# verify memory contents against provided data
+# main.py <device_path> verf <file>
+#
 
 
 import serial
@@ -80,7 +83,9 @@ def read_data_file(s):
     # read a data file contents
     # assume ascii file containing hex chars
     # merge lines, if any
-    f = open(s, 'r')
+    try: f = open(s, 'r')
+    except: f = None
+    if f == None: return None
     x = f.read()
     f.close()
     s = ''
@@ -93,6 +98,7 @@ def data_or_file_to_multi_line(s):
     # if s is a path, get the contents in a single line
     # otherwise, s is hexadecimal data
     if os.path.isfile(s) == True: s = read_data_file(s)
+    if s == None: return None
     if check_data_line(s): return None
     return single_to_multi_line(s)
 
@@ -201,6 +207,41 @@ def do_llen(ser, av, do_print = True):
     return 0
 
 
+def do_verf(ser, av):
+    if len(av) != 1: return -1
+
+    # rewind to addr 0
+    if do_addr(ser, [ '0' ]): return -1
+
+    s = read_data_file(av[0])
+    if s == None: return -1
+    if check_data_line(s): return -1
+
+    # remove uppercase
+    s = s.lower()
+
+    # read all memory and turn to one single line
+    size = '0200'
+    cmd_line = [ 'rmem ' + size ]
+    n = size_to_line_count(int('0x' + size, 16))
+    repl_lines = send_cmd_and_recv_multi_line(ser, cmd_line, n)
+    if repl_lines == None: return -1
+    l = ''
+    for rl in repl_lines: l += rl
+
+    # compare s and l
+    slen = len(s)
+    if slen != len(l):
+        print('data length differ')
+        return -1
+    for i in range(0, slen):
+        if s[i] != l[i]:
+            print('data differ at char index ' + str(i))
+            return -1
+    print('ok')
+    return 0
+
+
 def main(av):
     dev = av[1]
     ser = serial.Serial(dev, 9600, timeout = 2)
@@ -215,6 +256,7 @@ def main(av):
     elif av[2] == 'wmem': err = do_wmem(ser, av[3:])
     elif av[2] == 'rrom': err = do_rrom(ser, av[3:])
     elif av[2] == 'llen': err = do_llen(ser, av[3:])
+    elif av[2] == 'verf': err = do_verf(ser, av[3:])
     else: err = -1
 
     ser.close()
