@@ -90,7 +90,10 @@ def read_data_file(s):
     f.close()
     s = ''
     lines = x.splitlines()
-    for l in lines: s += l
+    for l in lines:
+        # skip comments
+        if len(l) and (l[0] == '#'): continue
+        s += l
     return s
 
 
@@ -263,6 +266,5 @@ def main(av):
 
     if err: print('error')
     return err
-
 
 main(sys.argv)
