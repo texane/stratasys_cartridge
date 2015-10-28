@@ -4,6 +4,27 @@
 # model: abs p430 ivory
 # rrom: 23179b6401000084
 #
+# ./stratasys-cli.py eeprom
+#  -t prodigy
+#  -i abs_p430_empty.eeprom.bin
+#  -e 84000001649b1723
+#  -r --material-name P430_BLK
+#
+# Cartridge - 'abs_p430_empty.eeprom.bin'
+# ---------------------------------------------------
+# Serial number           227571907.0
+# Material                P430_IVR (71 - 0x47)
+# Manufacturing lot       5980
+# Manufacturing date      2014-05-19 21:10:20
+# Last use date           2014-05-19 21:10:20
+# Initial quantity        56.3
+# Current quantity        -0.00482479460582
+# Key fragment            55aa55790edf54be
+# Version                 1
+# Signature               STRATASYS
+# Machine type:           prodigy 5394D7657CED641D
+# EEPROM uid:             84000001649b1723
+#
 
 ae09306649e5250b8a7540c81b0b5215
 06c2328843fd77a926630e58c11c11e7
