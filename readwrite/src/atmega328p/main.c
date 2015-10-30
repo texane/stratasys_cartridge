@@ -5,7 +5,7 @@
 
 /* ds2433 static configuration */
 
-#define DS2433_DATA_MASK (1 << 2)
+#define DS2433_DATA_MASK (1 << 5)
 #define DS2433_DATA_DDR (DDRC)
 #define DS2433_DATA_PORT (PORTC)
 #define DS2433_DATA_PIN (PINC)
