@@ -1,0 +1,39 @@
+# Serial number		227571907.0
+# Material		P430_IVR (71 - 0x47)
+# Manufacturing lot	888
+# Manufacturing date	2014-05-19 21:10:20
+# Last use date		2014-05-19 21:10:20
+# Initial quantity	56.3
+# Current quantity	50.0
+# Key fragment		55aa55790edf54be
+# Version			1
+# Signature		STRATASYS
+# 
+# Machine type:		prodigy 5394D7657CED641D
+# EEPROM uid:		27000002096edf23
+# 
+# To recreate this cartridge:
+# stratasys-cli.py eeprom
+#  --output-file XXX_REPLACE_ME_XXX
+#  --use-ascii
+#  --machine-type prodigy
+#  --eeprom-uid 27000002096edf23
+#  --serial-number 227571907.0
+#  --material-name P430_IVR
+#  --manufacturing-lot 888
+#  --manufacturing-date "2014-05-19 21:10:20"
+#  --use-date "2014-05-19 21:10:20"
+#  --initial-material 56.3
+#  --current-material 50.0
+#  --key-fragment 55aa55790edf54be
+#  --version 1
+#  --signature STRATASYS
+# 
+d414cc8106ddff0117f2dbe431fa217d
+9524d6eda7b91e894113f29d32a84c40
+359cd765eea37f6dcf9cc0d75a849773
+cf9cc0d75a849773afa28e33b8529fa9
+014e00000000666055aa55790edf54be
+d3640000000000001530a09c14983f9d
+6dca3660000000005354524154415359
+53
